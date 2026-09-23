@@ -8,15 +8,16 @@
 
 ## Render Blueprint
 
-`render.yaml` 維護三個資源：
+`render.yaml` 維護兩個 Render 資源：
 
 - `good-job-radar`：既有的靜態前端
 - `good-job-radar-api`：Python/FastAPI 服務
-- `good-job-radar-db`：PostgreSQL
 
-推送到 GitHub 後，在 Render 的 Blueprint 頁面執行 **Manual Sync**，檢視差異並套用。資料庫連線由 Blueprint 透過 Render 私有連線注入 `DATABASE_URL`。
+職缺資料庫使用 Neon PostgreSQL。推送到 GitHub 後，在 Neon 建立一個 PostgreSQL 專案，選擇離 Render API 最近的區域，複製連線字串。到 Render 的 `good-job-radar-api` 服務設定 **Environment → Add Environment Variable**，新增 `DATABASE_URL` 並貼上 Neon 連線字串，儲存後重新部署。連線字串只放在 Render 環境變數，不要提交到 GitHub。FastAPI 啟動時會自動建立資料表並同步職缺。
 
-目前 Blueprint 使用 Render 免費資料庫方案做初次驗證。Render 免費 PostgreSQL 有 1 GB 容量，並會在建立 30 天後到期；要長期保存資料，請在到期前升級到付費方案或先備份／遷移資料。
+在 Render 的 Blueprint 頁面執行 **Manual Sync**，檢視變更並套用。若先前已建立 `good-job-radar-db` Render Postgres，它不會因為從 Blueprint 移除而自動刪除；確認 Neon 連線成功後，可在 Render Dashboard 手動刪除閒置的 Render 資料庫。
+
+Neon Free 方案有儲存空間、運算時數和流量上限；留意 Neon 控制台用量，並確認帳戶中的方案與額度。
 
 ## 本機開發
 
