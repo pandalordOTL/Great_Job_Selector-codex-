@@ -1,27 +1,135 @@
-const seedJobs=[
- {id:1,title:'資深產品設計師',company:'綠藤生機',logo:'綠',logoBg:'#edf3e7',logoColor:'#5d8058',location:'台北市・信義區',salary:'月薪 70K–100K',type:'混合辦公',posted:'2 小時前',score:96,tags:['產品設計','Figma','永續生活'],reason:'重視的「產品影響力」與「彈性工作」都符合',status:'想投遞',remote:false},
- {id:2,title:'Product Designer',company:'Inline 營運科技',logo:'in',logoBg:'#eaf0fa',logoColor:'#5377b3',location:'台北市・大安區',salary:'月薪 65K–90K',type:'遠端工作',posted:'5 小時前',score:93,tags:['UX/UI','SaaS','遠端'],reason:'薪資高於你的期待，也能遠端工作',status:'觀望',remote:true},
- {id:3,title:'產品經理 Product Manager',company:'漸強實驗室',logo:'漸',logoBg:'#f7ede6',logoColor:'#ca8052',location:'台北市・中山區',salary:'月薪 75K–110K',type:'混合辦公',posted:'昨天',score:89,tags:['產品策略','AI 應用','B2B'],reason:'符合你對「新創團隊」和「產品決策」的偏好',status:'想投遞',remote:false},
- {id:4,title:'UI/UX 設計師',company:'Hahow 好學校',logo:'好',logoBg:'#faedf0',logoColor:'#b96a80',location:'台北市・松山區',salary:'月薪 60K–85K',type:'彈性工時',posted:'昨天',score:86,tags:['教育科技','UI/UX','學習'],reason:'產業方向和你的興趣高度吻合',status:'觀望',remote:false},
- {id:5,title:'Growth Product Designer',company:'街口支付',logo:'街',logoBg:'#edf1fa',logoColor:'#677db0',location:'台北市・內湖區',salary:'月薪 80K–120K',type:'混合辦公',posted:'2 天前',score:82,tags:['金融科技','Growth','數據分析'],reason:'薪資優於期待，但通勤距離稍遠',status:'觀望',remote:false},
- {id:6,title:'品牌暨數位體驗設計師',company:'小器生活道具',logo:'器',logoBg:'#f5f0e5',logoColor:'#947b47',location:'台北市・大同區',salary:'月薪 55K–75K',type:'彈性工時',posted:'3 天前',score:78,tags:['品牌設計','電商','生活風格'],reason:'工作內容貼近興趣，薪資落在期待範圍',status:'觀望',remote:false},
- {id:7,title:'UX Researcher',company:'AmazingTalker',logo:'A',logoBg:'#f3eaf9',logoColor:'#916eae',location:'台中市・西屯區',salary:'月薪 65K–95K',type:'遠端工作',posted:'4 天前',score:91,tags:['使用者研究','EdTech','遠端'],reason:'全遠端安排符合你的工作型態偏好',status:'觀望',remote:true},
- {id:8,title:'產品設計師',company:'PicCollage 拼貼趣',logo:'P',logoBg:'#e9f4f2',logoColor:'#4f9181',location:'台北市・信義區',salary:'月薪 70K–100K',type:'遠端工作',posted:'4 天前',score:90,tags:['App','視覺設計','遠端'],reason:'產品設計經驗吻合，團隊提供遠端彈性',status:'觀望',remote:true},
- {id:9,title:'Associate Product Manager',company:'91APP',logo:'91',logoBg:'#fff0e8',logoColor:'#d28353',location:'台北市・南港區',salary:'月薪 60K–80K',type:'混合辦公',posted:'5 天前',score:80,tags:['電商','產品規劃','跨部門'],reason:'薪資符合底線，產品領域具發展性',status:'觀望',remote:false},
- {id:10,title:'服務設計師',company:'國泰金控',logo:'國',logoBg:'#edf5e8',logoColor:'#709651',location:'台北市・大安區',salary:'月薪 68K–95K',type:'混合辦公',posted:'6 天前',score:77,tags:['服務設計','金融','UX'],reason:'符合薪資期待，工作流程重視使用者體驗',status:'觀望',remote:false},
- {id:11,title:'Product Designer, AI',company:'Appier 沛星互動',logo:'a',logoBg:'#eaeefa',logoColor:'#647cc1',location:'台北市・松山區',salary:'月薪 85K–130K',type:'混合辦公',posted:'1 週前',score:88,tags:['AI','產品設計','SaaS'],reason:'薪資與成長空間都符合你的期待',status:'觀望',remote:false},
- {id:12,title:'UX/UI Designer',company:'17LIVE',logo:'17',logoBg:'#f9eafa',logoColor:'#ac64b2',location:'台北市・內湖區',salary:'月薪 62K–90K',type:'彈性工時',posted:'1 週前',score:74,tags:['直播','UI/UX','影音'],reason:'設計能力可以發揮，產業偏好吻合度一般',status:'觀望',remote:false}
-];
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];let jobs=JSON.parse(localStorage.getItem('goodjob-jobs')||'null')||seedJobs;let saved=new Set(JSON.parse(localStorage.getItem('goodjob-saved')||'[2,7,11]'));let activeView='all',activeChip='all',locationValue='all',typeValue='all',sortValue='best',toastTimer;const list=$('#jobs-list');
-function persist(){localStorage.setItem('goodjob-jobs',JSON.stringify(jobs));localStorage.setItem('goodjob-saved',JSON.stringify([...saved]))}
-function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),2400)}
-function render(){let q=$('#search-input').value.trim().toLowerCase();let result=jobs.filter(j=>{const hay=`${j.title} ${j.company} ${j.location} ${j.tags.join(' ')}`.toLowerCase();if(q&&!hay.includes(q))return false;if(activeView==='saved'&&!saved.has(j.id))return false;if(activeView==='applied'&&j.status!=='已投遞')return false;if(activeChip==='saved'&&!saved.has(j.id))return false;if(activeChip==='remote'&&!j.remote)return false;if(activeChip==='salary'&&Number((j.salary.match(/\d+/)||[0])[0])<60)return false;if(locationValue!=='all'&&!j.location.includes(locationValue))return false;if(typeValue==='remote'&&!j.remote)return false;if(typeValue==='hybrid'&&!j.type.includes('混合'))return false;if(typeValue==='flex'&&!j.type.includes('彈性'))return false;return true});if(sortValue==='best')result.sort((a,b)=>b.score-a.score);if(sortValue==='new')result.sort((a,b)=>a.id-b.id);if(sortValue==='salary')result.sort((a,b)=>Number((b.salary.match(/\d+/)||[0])[0])-Number((a.salary.match(/\d+/)||[0])[0]));list.innerHTML=result.map(j=>`<article class="job-card" data-id="${j.id}"><div class="job-main"><div class="company-logo" style="background:${j.logoBg};color:${j.logoColor}">${esc(j.logo)}</div><div class="job-content"><div class="job-title-row"><div><div class="job-title">${esc(j.title)}</div><div class="company-name">${esc(j.company)}</div></div><div class="match-badge"><span class="spark">✳</span> ${j.score}% 適合</div></div><div class="job-meta"><span><b>⌖</b>${esc(j.location)}</span><span><b>＄</b>${esc(j.salary)}</span><span><b>◷</b>${esc(j.type)}</span><span><b>◴</b>${esc(j.posted)}</span></div><div class="job-tags">${j.tags.map((t,i)=>`<span class="job-tag ${i===0?'green-tag':''}">${esc(t)}</span>`).join('')}</div></div></div><div class="job-bottom"><div class="fit-reason"><span class="reason-dot">✳</span><span><strong>適合你的原因</strong> · ${esc(j.reason)}</span></div><div class="job-actions"><select class="status-select" aria-label="更新求職狀態" data-status="${j.id}">${['想投遞','觀望','已投遞','不適合'].map(s=>`<option ${j.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="save-button ${saved.has(j.id)?'saved':''}" data-save="${j.id}" aria-label="${saved.has(j.id)?'取消收藏':'收藏職缺'}">${saved.has(j.id)?'♥':'♡'}</button><button class="job-link" data-open="${j.id}">查看職缺 <span>↗</span></button></div></div></article>`).join('');$('#empty-state').hidden=result.length>0;list.hidden=!result.length;$('#result-count').textContent=`${result.length} 個機會`;$('#footer-count').textContent=result.length?`顯示 1–${Math.min(result.length,6)} 筆，共 ${result.length} 筆職缺`:'沒有符合條件的職缺';$('#nav-total').textContent=jobs.length;$('#nav-saved').textContent=saved.size;$('#stat-matches').innerHTML=`${result.length.toString().padStart(2,'0')} <small>個</small>`;$('#stat-saved').innerHTML=`${saved.size.toString().padStart(2,'0')} <small>個</small>`;$('#stat-applied').innerHTML=`${jobs.filter(j=>j.status==='已投遞').length.toString().padStart(2,'0')} <small>個</small>`;$('#chip-all').textContent=jobs.length;$('#new-count').textContent=`${Math.min(4,result.length)} 個新機會`}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function setView(view,label){activeView=view;$$('.nav-link').forEach(a=>a.classList.toggle('active',a.dataset.view===view));$('#breadcrumb-current').textContent=label;$('#list-heading').textContent=view==='saved'?'你收藏的機會':view==='applied'?'已投遞的職缺':'為你精選的職缺';render()}
-$$('.nav-link').forEach(a=>a.addEventListener('click',()=>setView(a.dataset.view,a.textContent.replace(/[\d]/g,'').trim())));$('#search-input').addEventListener('input',render);
-$$('.filter-chip').forEach(b=>b.addEventListener('click',()=>{activeChip=b.dataset.chip;$$('.filter-chip').forEach(c=>c.classList.toggle('active',c===b));if(activeChip==='saved')setView('all','全部職缺');render()}));$('#clear-filters').addEventListener('click',()=>{activeChip='all';locationValue=typeValue='all';$('#location-label').textContent='所有地點';$('#type-label').textContent='所有類型';$$('.filter-chip').forEach(c=>c.classList.toggle('active',c.dataset.chip==='all'));render()});
-$('#location-filter').addEventListener('click',()=>{let choices=['所有地點','台北市','台中市'];let cur=choices.indexOf($('#location-label').textContent);$('#location-label').textContent=choices[(cur+1)%choices.length];locationValue=$('#location-label').textContent==='所有地點'?'all':$('#location-label').textContent.replace('市','');render()});$('#type-filter').addEventListener('click',()=>{let choices=[['所有類型','all'],['遠端工作','remote'],['混合辦公','hybrid'],['彈性工時','flex']];let cur=choices.findIndex(x=>x[1]===typeValue);let next=choices[(cur+1)%choices.length];typeValue=next[1];$('#type-label').textContent=next[0];render()});$('#sort-button').addEventListener('click',()=>{let choices=[['最符合','best'],['最新發布','new'],['薪資最高','salary']];let cur=choices.findIndex(x=>x[1]===sortValue);let next=choices[(cur+1)%choices.length];sortValue=next[1];$('#sort-label').textContent=next[0];render()});
-list.addEventListener('click',e=>{const save=e.target.closest('[data-save]');if(save){const id=Number(save.dataset.save);saved.has(id)?saved.delete(id):saved.add(id);persist();render();toast(saved.has(id)?'已加入收藏':'已取消收藏');return}const open=e.target.closest('[data-open]');if(open){let j=jobs.find(x=>x.id===Number(open.dataset.open));toast(`已開啟「${j.company}」的職缺資訊`);return}});list.addEventListener('change',e=>{if(e.target.matches('[data-status]')){let j=jobs.find(x=>x.id===Number(e.target.dataset.status));j.status=e.target.value;persist();render();toast(`已更新「${j.title}」的求職狀態`)}});
-const modal=$('#modal-backdrop');function openModal(){modal.hidden=false;setTimeout(()=>$('#job-content').focus(),50)}function closeModal(){modal.hidden=true;$('#job-form').reset()}$('#add-job').addEventListener('click',openModal);$('#empty-add').addEventListener('click',openModal);$('#modal-close').addEventListener('click',closeModal);$('#cancel-modal').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#search-input').focus()}});
-$('#job-form').addEventListener('submit',e=>{e.preventDefault();const raw=$('#job-content').value.trim();if(!raw)return;const lines=raw.split(/\n+/).map(x=>x.trim()).filter(Boolean);const companyMatch=raw.match(/(?:公司|Company)[:：\s]*([^\n，,]+)/i);const titleMatch=raw.match(/(?:職稱|職缺|職位|Title)[:：\s]*([^\n，,]+)/i);const company=companyMatch?.[1]?.trim()||'新加入的公司';const title=titleMatch?.[1]?.trim()||lines[0].slice(0,28);const salary=raw.match(/(?:月薪|薪資|NT\$|TWD)\s*[:：]?\s*(\d{2,3})\s*[Kk千]?\s*(?:[-~至到]\s*(\d{2,3})\s*[Kk千]?)?/);const pay=salary?`月薪 ${salary[1]}K${salary[2]?`–${salary[2]}K`:''}`:'薪資面議';const remote=/遠端|remote/i.test(raw);const place=(raw.match(/(?:台北|新北|台中|台南|高雄|新竹)(?:市|縣)?(?:・|區|市|縣)?[^\n，,]*/)||[])[0]||'地點待確認';const id=Date.now();jobs.unshift({id,title,company,logo:company.slice(0,1),logoBg:'#edf3e7',logoColor:'#5d8058',location:place,type:remote?'遠端工作':'工作型態待確認',salary:pay,posted:'剛剛',score:estimateScore(raw),tags:raw.match(/Figma|UX|UI|產品|設計|AI|行銷|工程|PM/gi)?.slice(0,3)||['新機會'],reason:'已新增職缺，建議確認薪資、地點和工作型態',status:'觀望',remote});persist();closeModal();setView('all','全部職缺');toast('職缺已整理並加入你的清單')});function estimateScore(s){let score=70;if(/遠端/i.test(s))score+=8;if(/產品|設計|UX|UI/i.test(s))score+=7;if(/薪資|月薪/i.test(s))score+=5;if(/台北|新北/i.test(s))score+=4;return Math.min(score,96)}
-$('#open-preferences').addEventListener('click',()=>toast('偏好設定即將推出，先用篩選條件探索吧'));$('#customize-view').addEventListener('click',()=>toast('已依照薪資、地點與工作型態為你排序'));$('#show-matches').addEventListener('click',()=>{$('#jobs').scrollIntoView({behavior:'smooth'});toast('這些職缺依照適合度排序')});$('#add-collection').addEventListener('click',()=>toast('探索清單功能即將推出'));$$('.pagination button.page-number').forEach(b=>b.addEventListener('click',()=>toast('更多職缺即將載入')));$('#today-label').textContent=new Intl.DateTimeFormat('zh-TW',{month:'long',day:'numeric'}).format(new Date());render();
+const API_BASE = 'https://good-job-radar-api.onrender.com';
+const LOCAL_JOBS_KEY = 'goodjob-custom-jobs';
+const SAVED_KEY = 'goodjob-saved';
+const STATUS_KEY = 'goodjob-status';
+let apiJobs = [];
+let customJobs = JSON.parse(localStorage.getItem(LOCAL_JOBS_KEY) || '[]');
+let jobs = [];
+let saved = new Set(JSON.parse(localStorage.getItem(SAVED_KEY) || '[]').map(String));
+let statuses = JSON.parse(localStorage.getItem(STATUS_KEY) || '{}');
+let activeView = 'all', activeChip = 'all', locationValue = 'all', typeValue = 'all', sortValue = 'best', page = 1, toastTimer;
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
+const list = $('#jobs-list');
+
+function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function persist() {
+  localStorage.setItem(LOCAL_JOBS_KEY, JSON.stringify(customJobs));
+  localStorage.setItem(SAVED_KEY, JSON.stringify([...saved]));
+  localStorage.setItem(STATUS_KEY, JSON.stringify(statuses));
+}
+function toast(message) {
+  const element = $('#toast'); element.textContent = message; element.classList.add('visible');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => element.classList.remove('visible'), 2400);
+}
+function publishedLabel(value) {
+  if (!value) return '近期更新';
+  const match = String(value).match(/^(\d{4})(\d{2})(\d{2})$/);
+  if (!match) return value;
+  const date = new Date(`${match[1]}-${match[2]}-${match[3]}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  const days = Math.max(0, Math.floor((Date.now() - date.getTime()) / 86400000));
+  return days === 0 ? '今天更新' : days === 1 ? '昨天更新' : `${days} 天前更新`;
+}
+function fromApi(item) {
+  const palette = [['#edf3e7','#5d8058'],['#eaf0fa','#5377b3'],['#f7ede6','#ca8052'],['#f2eff8','#8776aa'],['#e9f4f2','#4f9181']];
+  const [logoBg, logoColor] = palette[(item.company || item.title || '').length % palette.length];
+  return {...item, id:String(item.id), logo:(item.company || '職').slice(0,2), logoBg, logoColor, sortDate:item.posted || '', posted:publishedLabel(item.posted), status:statuses[String(item.id)] || '觀望', remote:Boolean(item.remote)};
+}
+function rebuildJobs() { jobs = [...apiJobs.map(fromApi), ...customJobs.map(j => ({...j, id:String(j.id), status:statuses[String(j.id)] || j.status || '觀望'}))]; }
+async function loadJobs() {
+  list.hidden = false;
+  list.innerHTML = '<div class="loading-state">正在從台灣就業通整理職缺…<span class="loading-dot">✳</span></div>';
+  try {
+    const response = await fetch(`${API_BASE}/api/jobs?limit=1000`, {headers:{Accept:'application/json'}});
+    if (!response.ok) throw new Error(`API 回應 ${response.status}`);
+    const data = await response.json();
+    apiJobs = data.jobs || [];
+    rebuildJobs(); render();
+    $('#source-status').textContent = data.last_refresh_at ? `資料來源：台灣就業通・更新於 ${new Date(data.last_refresh_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}` : '資料來源：台灣就業通';
+    $('#new-count').textContent = `共 ${apiJobs.length.toLocaleString('zh-TW')} 筆公開職缺`;
+  } catch (error) {
+    list.hidden = true; $('#empty-state').hidden = false;
+    $('#empty-state').innerHTML = `<span>⌁</span><h3>職缺資料正在喚醒中</h3><p>Render 免費服務可能需要約一分鐘啟動。請稍後重新整理；若持續發生，請檢查後端部署狀態。</p><button class="primary-button" id="retry-load">重新載入 ↻</button>`;
+    $('#retry-load').addEventListener('click', loadJobs);
+    $('#source-status').textContent = '目前無法連線到職缺資料服務';
+  }
+}
+function render() {
+  rebuildJobs();
+  const query = $('#search-input').value.trim().toLowerCase();
+  let result = jobs.filter(job => {
+    const searchable = `${job.title} ${job.company} ${job.location} ${(job.tags || []).join(' ')} ${job.description || ''}`.toLowerCase();
+    if (query && !searchable.includes(query)) return false;
+    if (activeView === 'saved' && !saved.has(String(job.id))) return false;
+    if (activeView === 'applied' && job.status !== '已投遞') return false;
+    if (activeChip === 'saved' && !saved.has(String(job.id))) return false;
+    if (activeChip === 'remote' && !job.remote) return false;
+    if (activeChip === 'salary' && Number(job.salary_min || 0) < 60) return false;
+    if (locationValue !== 'all' && !String(job.location).includes(locationValue)) return false;
+    if (typeValue === 'remote' && !job.remote) return false;
+    if (typeValue === 'hybrid' && !String(job.type).includes('混合')) return false;
+    if (typeValue === 'flex' && !String(job.type).includes('彈性')) return false;
+    if (typeValue === 'full' && !String(job.type).includes('全職')) return false;
+    if (typeValue === 'part' && !String(job.type).includes('兼職')) return false;
+    return true;
+  });
+  if (sortValue === 'best') result.sort((a,b) => b.score-a.score);
+  if (sortValue === 'new') result.sort((a,b) => String(b.sortDate||'').localeCompare(String(a.sortDate||'')));
+  if (sortValue === 'salary') result.sort((a,b) => Number(b.salary_min||0)-Number(a.salary_min||0));
+  const pageCount = Math.max(1, Math.ceil(result.length / 6));
+  page = Math.min(page, pageCount);
+  const visibleJobs = result.slice((page - 1) * 6, page * 6);
+  list.innerHTML = visibleJobs.map(job => {
+    const source = /^https:\/\//i.test(job.source_url || '') ? job.source_url : '';
+    return `<article class="job-card" data-id="${esc(job.id)}"><div class="job-main"><div class="company-logo" style="background:${esc(job.logoBg)};color:${esc(job.logoColor)}">${esc(job.logo)}</div><div class="job-content"><div class="job-title-row"><div><div class="job-title">${esc(job.title)}</div><div class="company-name">${esc(job.company)}</div></div><div class="match-badge"><span class="spark">✳</span> ${Number(job.score)||0}% 適合</div></div><div class="job-meta"><span><b>⌖</b>${esc(job.location)}</span><span><b>＄</b>${esc(job.salary)}</span><span><b>◷</b>${esc(job.type)}</span><span><b>◴</b>${esc(job.posted)}</span></div><div class="job-tags">${(job.tags||[]).map((tag,i)=>`<span class="job-tag ${i===0?'green-tag':''}">${esc(tag)}</span>`).join('')}</div></div></div><div class="job-bottom"><div class="fit-reason"><span class="reason-dot">✳</span><span><strong>適合度參考</strong> · ${esc(job.reason)}</span></div><div class="job-actions"><select class="status-select" aria-label="更新求職狀態" data-status="${esc(job.id)}">${['想投遞','觀望','已投遞','不適合'].map(s=>`<option ${job.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="save-button ${saved.has(String(job.id))?'saved':''}" data-save="${esc(job.id)}" aria-label="收藏職缺">${saved.has(String(job.id))?'♥':'♡'}</button>${source?`<a class="job-link" href="${esc(source)}" target="_blank" rel="noopener noreferrer">原始職缺 <span>↗</span></a>`:'<span class="job-link">無原始連結</span>'}</div></div></article>`;
+  }).join('');
+  $('#empty-state').hidden = result.length > 0;
+  list.hidden = result.length === 0;
+  $('#result-count').textContent = `${result.length} 個機會`;
+  $('#footer-count').textContent = result.length ? `顯示 1–${Math.min(result.length,6)} 筆，共 ${result.length} 筆職缺` : '沒有符合條件的職缺';
+  if (result.length) $('#footer-count').textContent = `顯示 ${(page-1)*6+1}–${Math.min(page*6,result.length)} 筆，共 ${result.length} 筆職缺`;
+  const firstPage = Math.max(1, Math.min(page - 2, pageCount - 4));
+  const pageButtons = Array.from({length:Math.min(5,pageCount)},(_,i)=>firstPage+i).map(n=>`<button class="page-number ${n===page?'current':''}" data-page="${n}">${n}</button>`).join('');
+  $('.pagination').innerHTML = `<button aria-label="上一頁" data-page="${Math.max(1,page-1)}" ${page===1?'disabled':''}>←</button>${pageButtons}<button aria-label="下一頁" data-page="${Math.min(pageCount,page+1)}" ${page===pageCount?'disabled':''}>→</button>`;
+  $('#nav-total').textContent = apiJobs.length;
+  $('#nav-saved').textContent = saved.size;
+  $('#stat-matches').innerHTML = `${result.length.toString().padStart(2,'0')} <small>個</small>`;
+  $('#stat-saved').innerHTML = `${saved.size.toString().padStart(2,'0')} <small>個</small>`;
+  $('#stat-applied').innerHTML = `${jobs.filter(j=>j.status==='已投遞').length.toString().padStart(2,'0')} <small>個</small>`;
+  $('#chip-all').textContent = apiJobs.length;
+}
+function setView(view,label) {
+  activeView=view; $$('.nav-link').forEach(a=>a.classList.toggle('active',a.dataset.view===view));
+  $('#breadcrumb-current').textContent=label; $('#list-heading').textContent=view==='saved'?'你收藏的機會':view==='applied'?'已投遞的職缺':'為你精選的職缺'; render();
+}
+
+$$('.nav-link').forEach(link=>link.addEventListener('click',()=>setView(link.dataset.view,link.textContent.replace(/[\d]/g,'').trim())));
+$('#search-input').addEventListener('input',render);
+$$('.filter-chip').forEach(button=>button.addEventListener('click',()=>{activeChip=button.dataset.chip;$$('.filter-chip').forEach(chip=>chip.classList.toggle('active',chip===button));if(activeChip==='saved')setView('all','全部職缺');render()}));
+$('#clear-filters').addEventListener('click',()=>{activeChip='all';locationValue=typeValue='all';$('#location-label').textContent='所有地點';$('#type-label').textContent='所有類型';$$('.filter-chip').forEach(chip=>chip.classList.toggle('active',chip.dataset.chip==='all'));render()});
+$('#location-filter').addEventListener('click',()=>{const choices=['所有地點','台北','新北','台中','新竹'];const current=choices.indexOf($('#location-label').textContent);$('#location-label').textContent=choices[(current+1)%choices.length];locationValue=$('#location-label').textContent==='所有地點'?'all':$('#location-label').textContent;render()});
+$('#type-filter').addEventListener('click',()=>{const choices=[['所有類型','all'],['遠端工作','remote'],['全職','full'],['兼職','part']];const next=choices[(choices.findIndex(x=>x[1]===typeValue)+1)%choices.length];typeValue=next[1];$('#type-label').textContent=next[0];render()});
+$('#sort-button').addEventListener('click',()=>{const choices=[['最符合','best'],['最近更新','new'],['薪資最高','salary']];const next=choices[(choices.findIndex(x=>x[1]===sortValue)+1)%choices.length];sortValue=next[1];$('#sort-label').textContent=next[0];render()});
+list.addEventListener('click',event=>{const button=event.target.closest('[data-save]');if(!button)return;const id=String(button.dataset.save);saved.has(id)?saved.delete(id):saved.add(id);persist();render();toast(saved.has(id)?'已加入收藏':'已取消收藏')});
+list.addEventListener('change',event=>{if(!event.target.matches('[data-status]'))return;statuses[String(event.target.dataset.status)]=event.target.value;persist();render();toast(`求職狀態已更新為「${event.target.value}」`)});
+
+const modal=$('#modal-backdrop');function openModal(){modal.hidden=false;setTimeout(()=>$('#job-content').focus(),50)}function closeModal(){modal.hidden=true;$('#job-form').reset()}
+$('#add-job').addEventListener('click',openModal);$('#empty-add')?.addEventListener('click',openModal);$('#modal-close').addEventListener('click',closeModal);$('#cancel-modal').addEventListener('click',closeModal);modal.addEventListener('click',event=>{if(event.target===modal)closeModal()});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeModal();if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();$('#search-input').focus()}});
+$('#job-form').addEventListener('submit',event=>{
+  event.preventDefault();const raw=$('#job-content').value.trim();if(!raw)return;const lines=raw.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  const company=raw.match(/(?:公司|Company)[:：\s]*([^\n，,]+)/i)?.[1]?.trim()||'手動新增';
+  const title=raw.match(/(?:職稱|職缺|職位|Title)[:：\s]*([^\n，,]+)/i)?.[1]?.trim()||lines[0].slice(0,40);
+  const salaryMatch=raw.match(/(?:月薪|薪資|NT\$|TWD)\s*[:：]?\s*(\d{2,3})\s*[Kk千]?\s*(?:[-~至到]\s*(\d{2,3})\s*[Kk千]?)?/);
+  const salaryMin=salaryMatch?Number(salaryMatch[1]):0;const id=`custom-${Date.now()}`;
+  customJobs.unshift({id,title,company,logo:company.slice(0,2),logoBg:'#edf3e7',logoColor:'#5d8058',location:(raw.match(/(?:台北|新北|台中|台南|高雄|新竹)[^\n，,]*/)||[])[0]||'地點待確認',salary:salaryMatch?`月薪 ${salaryMatch[1]}K${salaryMatch[2]?`–${salaryMatch[2]}K`:''}`:'薪資面議',salary_min:salaryMin,type:/遠端|remote/i.test(raw)?'遠端工作':'工作型態待確認',posted:'剛剛',score:Math.min(96,70+(salaryMin>=60?12:0)+(/產品|設計|UX|UI/i.test(raw)?8:0)),tags:raw.match(/Figma|UX|UI|產品|設計|AI|行銷|工程|PM/gi)?.slice(0,3)||['手動新增'],reason:'手動加入的職缺，請確認原始資訊。',status:'觀望',remote:/遠端|remote/i.test(raw),description:raw,source_url:/^https:\/\//i.test(raw)?raw:''});
+  persist();closeModal();render();toast('職缺已加入你的清單');
+});
+$('#open-preferences').addEventListener('click',()=>toast('偏好設定即將推出，先用篩選條件探索吧'));
+$('#customize-view').addEventListener('click',()=>toast('可以使用上方篩選條件調整結果'));
+$('#show-matches').addEventListener('click',()=>{$('#jobs').scrollIntoView({behavior:'smooth'});toast('職缺已依符合度排序')});
+$('#add-collection').addEventListener('click',()=>toast('探索清單功能即將推出'));
+$('.pagination').addEventListener('click',event=>{const button=event.target.closest('[data-page]');if(!button||button.disabled)return;page=Number(button.dataset.page);render();$('#jobs-list').scrollIntoView({behavior:'smooth',block:'start'})});
+$('#today-label').textContent=new Intl.DateTimeFormat('zh-TW',{month:'long',day:'numeric'}).format(new Date());
+loadJobs();

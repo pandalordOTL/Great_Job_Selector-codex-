@@ -1,30 +1,34 @@
 # 好職雷達
 
-繁體中文職缺篩選器 MVP，使用原生 HTML、CSS 與 JavaScript 製作，無需安裝套件或建置步驟。
+繁體中文職缺篩選器。前端使用原生 HTML/CSS/JavaScript，後端使用 FastAPI 與 SQLAlchemy，職缺資料保存於 PostgreSQL。
 
-## 本機預覽
+## 職缺來源
 
-直接用瀏覽器開啟 `index.html` 即可。使用者新增的職缺與收藏保存在該瀏覽器的 `localStorage`。
+後端使用勞動力發展署「台灣就業通網站職缺清單」XML 服務，每 12 小時同步一次，每次依來源限制最多取得 1,000 筆。原始職缺連結會保留供使用者前往求職網站查看。
 
-## 部署到 Render
+## Render Blueprint
 
-專案內的 `render.yaml` 已設定為 Render Static Site：
+`render.yaml` 維護三個資源：
 
-- Runtime：Static
-- Build command：留空
-- Publish directory：專案根目錄 (`.`)
-- Auto deploy：開啟
+- `good-job-radar`：既有的靜態前端
+- `good-job-radar-api`：Python/FastAPI 服務
+- `good-job-radar-db`：PostgreSQL
 
-將此 repository 推送至 GitHub 後，在 Render 選擇 **New → Blueprint** 並連結 repository，Render 會讀取 `render.yaml` 建立網站。也可以選 **New → Static Site**，將 Publish Directory 設為 `.`，Build Command 留空。
+推送到 GitHub 後，在 Render 的 Blueprint 頁面執行 **Manual Sync**，檢視差異並套用。資料庫連線由 Blueprint 透過 Render 私有連線注入 `DATABASE_URL`。
 
-每次推送到部署分支，Render 會自動重新部署。網站資料目前只存在各使用者的瀏覽器；Render 靜態網站不會提供共用資料庫、帳號登入或跨裝置同步。
+目前 Blueprint 使用 Render 免費資料庫方案做初次驗證。Render 免費 PostgreSQL 有 1 GB 容量，並會在建立 30 天後到期；要長期保存資料，請在到期前升級到付費方案或先備份／遷移資料。
 
-## 推送到 GitHub
-
-在 GitHub 建立空白 repository，然後在本資料夾執行（替換成自己的 repository URL）：
+## 本機開發
 
 ```powershell
-git remote add origin https://github.com/你的帳號/你的repository.git
-git push -u origin main
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn api:app --reload
 ```
 
+本機預設使用 `./good_job_radar.db` SQLite。網站前端的 API URL 設於 `app.js` 的 `API_BASE`。
+
+## 目前資料保存範圍
+
+來源職缺儲存在 PostgreSQL，會由後端同步；收藏與求職狀態仍保存在瀏覽器本機，尚未加入帳號登入與跨裝置同步。職缺適合度是可解釋的規則分數，並非雇主或求職網站提供的評估。
