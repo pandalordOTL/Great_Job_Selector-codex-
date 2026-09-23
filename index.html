@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f6f7f4" />
+  <title>好職雷達 — 找到真正適合你的工作</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="好職雷達首頁"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 22.5 12.2 15l4.5 4.3L27 8.5"/><path d="M19.8 8.5H27v7.2"/></svg></span><span>好職雷達<span class="brand-dot">.</span></span></a>
+      <div class="workspace-label">工作空間</div>
+      <nav class="main-nav" aria-label="主要導覽">
+        <a href="#jobs" class="nav-link active" data-view="all"><span class="nav-icon">▦</span>全部職缺<span class="nav-count" id="nav-total">12</span></a>
+        <a href="#jobs" class="nav-link" data-view="saved"><span class="nav-icon">♡</span>已收藏<span class="nav-count" id="nav-saved">0</span></a>
+        <a href="#jobs" class="nav-link" data-view="applied"><span class="nav-icon">↗</span>已投遞</a>
+      </nav>
+      <div class="sidebar-divider"></div>
+      <div class="workspace-label">你的探索</div>
+      <div class="search-collection"><span class="collection-dot green"></span><span>產品設計</span><span class="collection-count">08</span></div>
+      <div class="search-collection"><span class="collection-dot blue"></span><span>科技新創</span><span class="collection-count">04</span></div>
+      <button class="add-collection" id="add-collection"><span>＋</span>新增探索清單</button>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-tip"><div class="tip-spark">✳</div><strong>找工作也可以很有方向</strong><p>設定你的偏好，讓好機會自己浮出來。</p><button id="open-preferences">設定我的偏好 <span>↗</span></button></div>
+      <button class="profile-button"><span class="avatar">林</span><span class="profile-copy"><strong>林同學</strong><small>求職探索中</small></span><span class="profile-menu">···</span></button>
+    </aside>
+
+    <main class="main-content" id="jobs">
+      <header class="topbar"><div class="breadcrumbs">工作空間 <span>/</span> <strong id="breadcrumb-current">全部職缺</strong></div><div class="topbar-actions"><button class="icon-button notification" aria-label="通知">♧<i></i></button><span class="topbar-divider"></span><span class="today-label" id="today-label">今天</span></div></header>
+      <section class="page-heading"><div><div class="eyebrow"><span class="live-dot"></span>你的專屬職涯雷達</div><h1>找到真正適合你的<span class="heading-accent">好工作。</span></h1><p class="heading-description">好機會不該靠運氣。從你的在意開始，找到下一個可能。</p></div><button class="primary-button" id="add-job"><span class="plus-icon">＋</span>加入職缺</button></section>
+      <section class="insight-banner"><div class="insight-icon">✳</div><div class="insight-copy"><strong>今天有 <span id="new-count">4 個新機會</span>符合你的方向</strong><span>依照你重視的工作條件，幫你整理好了。</span></div><button class="banner-link" id="show-matches">看看有哪些 <span>→</span></button><div class="banner-decoration">✳</div></section>
+      <section class="stats-row" aria-label="職缺摘要"><div class="stat-card"><span class="stat-icon mint">▦</span><div><span class="stat-label">符合條件的職缺</span><strong id="stat-matches">12 <small>個</small></strong></div></div><div class="stat-card"><span class="stat-icon lavender">♡</span><div><span class="stat-label">已收藏的機會</span><strong id="stat-saved">03 <small>個</small></strong></div></div><div class="stat-card"><span class="stat-icon peach">↗</span><div><span class="stat-label">本週已投遞</span><strong id="stat-applied">02 <small>個</small></strong></div></div><div class="stat-note"><span>✳</span><span>今天也替自己<br />多留一個可能。</span></div></section>
+
+      <section class="jobs-section"><div class="section-heading"><div><div class="section-title-row"><h2 id="list-heading">為你精選的職缺</h2><span class="result-pill" id="result-count">12 個機會</span></div><p>每一份機會，都有它適合你的理由。</p></div><button class="text-button" id="customize-view">調整我的條件 <span>↗</span></button></div>
+        <div class="toolbar"><label class="search-box"><span>⌕</span><input id="search-input" type="search" placeholder="搜尋職稱、公司或關鍵字..." /><kbd>⌘ K</kbd></label><div class="toolbar-filters"><button class="filter-button" id="location-filter"><span class="filter-glyph">⌖</span><span id="location-label">所有地點</span><span class="chevron">⌄</span></button><button class="filter-button" id="type-filter"><span class="filter-glyph">◷</span><span id="type-label">所有類型</span><span class="chevron">⌄</span></button><button class="filter-button sort-button" id="sort-button"><span class="filter-glyph">☷</span><span id="sort-label">最符合</span><span class="chevron">⌄</span></button></div></div>
+        <div class="chip-row"><span class="filter-caption">快速篩選</span><button class="filter-chip active" data-chip="all">全部職缺 <span id="chip-all">12</span></button><button class="filter-chip" data-chip="remote">遠端工作</button><button class="filter-chip" data-chip="salary">月薪 60K+</button><button class="filter-chip" data-chip="saved">♡ 我的收藏</button><button class="clear-filters" id="clear-filters">清除篩選</button></div>
+        <div class="jobs-list" id="jobs-list"></div><div class="empty-state" id="empty-state" hidden><span>✳</span><h3>還沒有符合的職缺</h3><p>試著調整篩選條件，或加入一個你看到的好機會。</p><button class="primary-button" id="empty-add">加入職缺 <span>＋</span></button></div>
+        <div class="list-footer"><span id="footer-count">顯示 1–6 筆，共 12 筆職缺</span><div class="pagination"><button aria-label="上一頁" disabled>←</button><button class="page-number current">1</button><button class="page-number">2</button><button class="page-number">3</button><span>…</span><button class="page-number">8</button><button aria-label="下一頁">→</button></div></div>
+      </section>
+      <footer class="page-footer"><span>每一個好選擇，都從認識自己開始。</span><span>好職雷達 <span class="brand-dot">✳</span></span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop" id="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="modal-close" id="modal-close" aria-label="關閉">×</button><div class="modal-eyebrow">✳ 讓好機會，從這裡開始</div><h2 id="modal-title">加入一個新機會</h2><p class="modal-description">貼上職缺內容，我們一起看看這是不是你的下一站。</p><form id="job-form"><label class="field-label" for="job-content">職缺網址或完整描述</label><textarea id="job-content" rows="6" placeholder="貼上職缺連結或職缺描述..." required></textarea><div class="form-hint">貼上完整描述，能幫助我們更準確判斷適合你的理由。</div><div class="form-actions"><button type="button" class="secondary-button" id="cancel-modal">先等等</button><button type="submit" class="primary-button">整理這個職缺 <span>→</span></button></div></form></section></div>
+  <script src="app.js"></script>
+</body>
+</html>
