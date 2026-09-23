@@ -19,6 +19,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 SOURCE_URL = "https://free.taiwanjobs.gov.tw/webservice_taipei/Webservice.ashx"
 REFRESH_SECONDS = 12 * 60 * 60
+RETRY_SECONDS = 5 * 60
 
 
 def database_url() -> str:
@@ -160,17 +161,32 @@ def refresh_jobs() -> int:
                 job.last_seen_at = now
         session.merge(Metadata(key="last_refresh_at", value=now.isoformat()))
         session.merge(Metadata(key="last_refresh_count", value=str(len(records))))
+        session.merge(Metadata(key="last_refresh_error", value=""))
         session.commit()
     return len(records)
 
 
+def save_refresh_error(error: Exception) -> None:
+    with Session(engine) as session:
+        session.merge(Metadata(key="last_refresh_error", value=str(error)[:1000]))
+        session.commit()
+
+
 async def refresh_loop() -> None:
     while True:
-        await asyncio.sleep(REFRESH_SECONDS)
+        with Session(engine) as session:
+            has_success = session.get(Metadata, "last_refresh_at") is not None
+            last_error = session.get(Metadata, "last_refresh_error")
+        delay = RETRY_SECONDS if not has_success or (last_error and last_error.value) else REFRESH_SECONDS
+        await asyncio.sleep(delay)
         try:
             await asyncio.to_thread(refresh_jobs)
         except Exception as exc:
             print(f"TaiwanJobs refresh failed: {exc}", flush=True)
+            try:
+                await asyncio.to_thread(save_refresh_error, exc)
+            except Exception as save_exc:
+                print(f"Could not save TaiwanJobs refresh error: {save_exc}", flush=True)
 
 
 @asynccontextmanager
@@ -180,6 +196,10 @@ async def lifespan(_: FastAPI):
         await asyncio.to_thread(refresh_jobs)
     except Exception as exc:
         print(f"Initial TaiwanJobs refresh failed: {exc}", flush=True)
+        try:
+            await asyncio.to_thread(save_refresh_error, exc)
+        except Exception as save_exc:
+            print(f"Could not save TaiwanJobs refresh error: {save_exc}", flush=True)
     task = asyncio.create_task(refresh_loop())
     yield
     task.cancel()
@@ -231,8 +251,9 @@ def serialize(job: Job) -> dict:
 def health():
     with Session(engine) as session:
         last = session.get(Metadata, "last_refresh_at")
+        error = session.get(Metadata, "last_refresh_error")
         count = session.scalar(select(func.count()).select_from(Job)) or 0
-        return {"status": "ok", "job_count": count, "last_refresh_at": last.value if last else None}
+        return {"status": "ok", "job_count": count, "last_refresh_at": last.value if last else None, "last_refresh_error": error.value if error and error.value else None}
 
 
 @app.get("/api/jobs")
