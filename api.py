@@ -104,6 +104,9 @@ def salary_info(low: str, high: str, basis: str) -> tuple[str, int]:
 
 
 def parse_jobs(xml_text: str) -> list[dict]:
+    # TaiwanJobs appends Chinese labels (including full-width parentheses) to
+    # element names. Those labels are not accepted by Python's XML parser.
+    xml_text = re.sub(r"(<\/?)([A-Za-z0-9_]+)（[^<>]*?）(>)", r"\1\2\3", xml_text)
     try:
         root = ET.fromstring(xml_text.lstrip("\ufeff"))
     except ET.ParseError as exc:
